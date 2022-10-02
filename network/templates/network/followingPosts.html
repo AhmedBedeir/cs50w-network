@@ -1,0 +1,59 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+<h2 style="text-align: center; margin: 20px auto; color: var(--light)">Posts from users you follow.</h2>
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    {% if posts.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ posts.previous_page_number }}" tabindex="-1" aria-disabled="false">Previous</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+      </li>
+    {% endif %}
+
+    {% for i in pageNumRange %}
+      <li class="page-item"><a class="page-link" href="?page={{ i|add:1 }}">{{ i|add:1 }}</a></li>
+    {% endfor %}
+    {% if posts.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ posts.next_page_number }}">Next</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+<div class="all-posts">
+  {% for post in posts %}
+  <div class="post" id="{{ post.id }}">
+    <div class="header-post">
+      <a href="{% url 'getProfile' post.owner.username%}">
+        <h5>@{{ post.owner.username }}</h5>
+      </a>
+      <small>{{ post.created }}</small>
+    </div>
+    <p id="content-{{post.id}}">{{ post.content }}</p>
+
+    {% if user.is_authenticated %}
+      {% if user in post.lovers.all %}
+        <span class="btn btn-danger" >
+          {{ post.lovers.count }} 
+          Love(s)
+        </span>
+      {% else %}
+        <span class="btn btn-outline-danger">
+            {{ post.lovers.count }}
+          Love(s)
+        </span>
+      {% endif %}
+    {% endif %}
+
+  </div>
+  {% empty %}
+    <h2 style="text-align: center; margin: 20px auto; color: var(--light)">Currently No posts..!</h2>
+  {% endfor %}
+    
+</div>
+{% endblock body %}
+  

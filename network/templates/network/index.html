@@ -1,0 +1,89 @@
+{% extends "network/layout.html" %} 
+
+{% block body %}
+<!-- if user login can be add post -->
+{% if message %}
+  <div class="massage">
+    <h3>{{ message }}</h3>
+  </div>
+{% endif %}
+  
+{% if user.is_authenticated %}
+<form action="{% url 'addPost' %}" class="form-post" method="post">
+  {% csrf_token %}
+  <h3>New post</h3>
+  <textarea
+    name="getPost"
+    id="getPost"
+    cols="10"
+    rows="5"
+    placeholder="What's happening?"
+  ></textarea>
+  <input type="submit" class="btn btnPost" name="addPost" value="Post" />
+</form>
+<hr />
+{% endif %}
+<div class="all-posts">
+  
+  {% for post in posts %}
+    <div class="post" id="{{ post.id }}">
+      <div class="header-post">
+        <a href="{% url 'getProfile' post.owner.username%}">
+          <h5>@{{ post.owner.username }}</h5>
+        </a>
+        <small>{{ post.created }}</small>
+      </div>
+      <p id="content-{{post.id}}">{{ post.content }}</p>
+
+      {% if user.is_authenticated %}
+        {% if user in post.lovers.all %}
+          <button class="btn btn-danger love" >
+            <span id = "countLikes-{{post.id}}">
+              {{ post.lovers.count }} 
+            </span>
+            Love(s)
+          </button>
+        {% else %}
+          <button class="btn btn-outline-danger love">
+            <span id = "countLikes-{{post.id}}">
+              {{ post.lovers.count }}
+            </span>
+            Love(s)
+          </button>
+        {% endif %}
+        {% if user == post.owner %}
+          <button class="btn btn-info edit">Edit</button>
+        {% endif %}
+      {% endif %}
+
+    </div>
+  {% empty %}
+    <h2>Currently No posts..!</h2>
+  {% endfor %}
+</div>
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    {% if posts.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ posts.previous_page_number }}" tabindex="-1" aria-disabled="false">Previous</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+      </li>
+    {% endif %}
+
+    {% for i in pageNumRange %}
+      <li class="page-item"><a class="page-link" href="?page={{ i|add:1 }}">{{ i|add:1 }}</a></li>
+    {% endfor %}
+    {% if posts.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ posts.next_page_number }}">Next</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+<footer>
+  <h4>&copy; 2022 <a href="https://github.com/AhmedBedeir" target="_blank">Bedeir</a></h4>
+</footer>
+{% endblock %}
